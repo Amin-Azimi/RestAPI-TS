@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
+import * as cookieParser from 'cookie-parser';  
 import { IControlller } from 'controller.interface';
 import { connect } from 'mongoose';
 import * as publicIp   from 'public-ip';
@@ -17,6 +18,7 @@ class App {
 
     private initializeMiddleware(){
         this.app.use(bodyParser.json());
+        this.app.use(cookieParser());
     }
 
     private initializeCotrollers(controllers:IControlller[])

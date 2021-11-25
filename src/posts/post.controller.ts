@@ -5,18 +5,13 @@ import Post from './post.interface';
 import postModel from './post.model';
 import validationMiddleWare from '../middleware/vallidation.middleware';
 import CraetePostDto from './post.dto';
+import authMiddleware from 'middleware/auth.middleare';
+import RequestWithUser from 'authentication/requestWithUser';
 
 class PostController implements IControlller{
     public path :string="/posts";
     public router :Router = Router();
 
-    private posts:Post[]=[
-        {
-            author:"amin",
-            content:"Chieee",
-            title:"Noch"
-        }
-    ];
     constructor(){
         this.initializeRoutes();
     }
@@ -24,9 +19,11 @@ class PostController implements IControlller{
     public initializeRoutes(){
         this.router.get(this.path,this.getAllPosts);
         this.router.get(`${this.path}/:id`,this.getPostById);
-        this.router.post(this.path,validationMiddleWare<CraetePostDto>(CraetePostDto) ,this.createAPost);
-        this.router.patch(`${this.path}/:id`,validationMiddleWare<CraetePostDto>(CraetePostDto,true) ,this.modifyPost);
-        this.router.delete(`${this.path}/:id`,this.removePost);
+        this.router
+        .all(`${this.path}/*`,authMiddleware)
+        .patch(`${this.path}/:id`,validationMiddleWare<CraetePostDto>(CraetePostDto,true) ,this.modifyPost)
+        .delete(`${this.path}/:id`,this.removePost)
+        .post(this.path,authMiddleware,validationMiddleWare<CraetePostDto>(CraetePostDto) ,this.createAPost);
     }
 
     getAllPosts= (request:Request,reponse : Response)=>{
@@ -51,10 +48,14 @@ class PostController implements IControlller{
         // }
     }
 
-    createAPost = (request:Request, response:Response) =>{
-        const post:Post = request.body;
-        console.log(`create called${post}`);
-        const createdPost = new postModel(post);
+    createAPost = (request:RequestWithUser, response:Response) =>{
+        const postData:Post = request.body;
+        console.log(`create called${postData}`);
+
+        const createdPost = new postModel({
+            ...postData,
+            authorId : request.user._id
+        });
         createdPost.save()
         .then(savedPost =>{
             response.send(savedPost);
