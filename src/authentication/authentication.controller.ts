@@ -11,7 +11,6 @@ import WrongCredentialException from 'execption/WrongCredentialException';
 import validationMiddleWare from 'middleware/vallidation.middleware';
 import ToeknData from './tokenData';
 import DataStoreInToken from './dataStoredInToken';
-import { JsonWebTokenError } from 'jsonwebtoken';
 
 class AuthenticationController implements IControlller{
     public path:string ='/auth';
