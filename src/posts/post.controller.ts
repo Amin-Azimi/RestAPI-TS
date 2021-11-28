@@ -10,14 +10,7 @@ class PostController implements IControlller{
     public path :string="/posts";
     public router :Router = Router();
 
-    private posts:Post[]=[
-        {
-            author:"amin",
-            content:"Chieee",
-            title:"Noch"
-        }
-    ];
-    constructor(){
+     constructor(){
         this.initializeRoutes();
     }
 
@@ -51,10 +44,15 @@ class PostController implements IControlller{
         // }
     }
 
+    //this method get a Post DTO from body and after convert It to PostModel it will save it
     createAPost = (request:Request, response:Response) =>{
-        const post:Post = request.body;
-        console.log(`create called${post}`);
-        const createdPost = new postModel(post);
+        const postDto:CraetePostDto = request.body;
+        console.log(`create called${postDto}`);
+        const createdPost:InstanceType<typeof postModel> = new postModel({
+            ...postDto,
+            authur: request.User._id;
+            
+        });
         createdPost.save()
         .then(savedPost =>{
             response.send(savedPost);
