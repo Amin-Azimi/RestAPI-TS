@@ -5,6 +5,8 @@ import Post from './post.interface';
 import postModel from './post.model';
 import validationMiddleWare from '../middleware/vallidation.middleware';
 import CraetePostDto from './post.dto';
+import authMiddleware from 'middleware/auth.middleare';
+import RequestWithUser from 'authentication/requestWithUser';
 
 class PostController implements IControlller{
     public path :string="/posts";
@@ -17,9 +19,11 @@ class PostController implements IControlller{
     public initializeRoutes(){
         this.router.get(this.path,this.getAllPosts);
         this.router.get(`${this.path}/:id`,this.getPostById);
-        this.router.post(this.path,validationMiddleWare<CraetePostDto>(CraetePostDto) ,this.createAPost);
-        this.router.patch(`${this.path}/:id`,validationMiddleWare<CraetePostDto>(CraetePostDto,true) ,this.modifyPost);
-        this.router.delete(`${this.path}/:id`,this.removePost);
+        this.router
+        .all(`${this.path}/*`,authMiddleware)
+        .patch(`${this.path}/:id`,validationMiddleWare<CraetePostDto>(CraetePostDto,true) ,this.modifyPost)
+        .delete(`${this.path}/:id`,this.removePost)
+        .post(this.path,authMiddleware,validationMiddleWare<CraetePostDto>(CraetePostDto) ,this.createAPost);
     }
 
     getAllPosts= (request:Request,reponse : Response)=>{
