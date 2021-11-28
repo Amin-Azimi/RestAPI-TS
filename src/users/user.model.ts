@@ -3,9 +3,9 @@ import { Schema,model } from "mongoose";
 import User from "./user.interface";
 
 const userShcema = new Schema<User>({
-    name:{type:String,required:true},
-    email : {type:String,required:true},
-    password:{type:String,required:true}
+    name:String,
+    email : String,
+    password:String
 });
 
 const userModel = model<User>('User',userShcema);

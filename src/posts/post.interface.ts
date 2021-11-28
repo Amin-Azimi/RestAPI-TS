@@ -1,7 +1,7 @@
-interface Post{
-    authorId: string,
-    content : string,
-    title: string
-}
-
-export default Post;
+import { Schema, model, Document, Types } from 'mongoose';
+export default interface Post  {
+    author?: Types.ObjectId;
+    content: string;
+    title: string;
+  }
+  

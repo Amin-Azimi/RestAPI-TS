@@ -5,8 +5,9 @@ import Post from './post.interface';
 import postModel from './post.model';
 import validationMiddleWare from '../middleware/vallidation.middleware';
 import CraetePostDto from './post.dto';
-import authMiddleware from 'middleware/auth.middleare';
-import RequestWithUser from 'authentication/requestWithUser';
+import authMiddleware from '../middleware/auth.middleare';
+import RequestWithUser from '../authentication/requestWithUser';
+import User from '../users/user.interface';
 
 class PostController implements IControlller{
     public path :string="/posts";
@@ -49,19 +50,24 @@ class PostController implements IControlller{
     }
 
     //this method get a Post DTO from body and after convert It to PostModel it will save it
-    createAPost = (request:Request, response:Response) =>{
+    createAPost = async(request:RequestWithUser, response:Response) =>{
         const postDto:CraetePostDto = request.body;
-        console.log(`create called${postDto}`);
-        const createdPost:InstanceType<typeof postModel> = new postModel({
-            ...postDto,
-            authur: request.User._id;
-            
+        console.log(`create called${request.user._id}`);
+        const createdPost = new postModel({
+            content : postDto.content,
+            title : postDto.title,
+            authur: request.user._id
         });
-        createdPost.save()
-        .then(savedPost =>{
-            response.send(savedPost);
-        })
-    }
+        console.log('post for save: ',createdPost);
+        const savedPost= await createdPost.save();
+        postModel.findOne({}).populate<{ author: User }>('author').orFail().then(doc => {
+            // Works
+            const t: string = doc.author.name;
+            console.log('name is ', t);
+          });
+
+        response.send(savedPost);
+        }
 
     modifyPost = (request:Request, response:Response) =>{
         const Id = request.params.id;

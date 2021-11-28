@@ -3,10 +3,11 @@ import RequestWithUser from "../authentication/requestWithUser";
 import WrongAuthenticationTokenException from "../execption/WrongAuthenticationTokenException";
 import { NextFunction, Response } from "express";
 import * as jwt from "jsonwebtoken";
-import userModel from "users/user.model";
+import userModel from "../users/user.model";
 
 async function authMiddleware(req : RequestWithUser,res : Response,next : NextFunction) {
     const cookie = req.cookies;
+    console.log('auth middle is called');
     if(cookie && cookie.Authorization){
         const secrect = process.env.JWT_SECRET;
         try {
@@ -16,6 +17,7 @@ async function authMiddleware(req : RequestWithUser,res : Response,next : NextFu
         const user = await userModel.findById(id);
         if(user){
             req.user = user;
+            next();
         }
         else{
             next(new WrongAuthenticationTokenException());

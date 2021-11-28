@@ -2,13 +2,13 @@ import * as bcrypt from 'bcrypt';
 import {Request, Response, NextFunction, Router} from 'express';
 import * as jwt from 'jsonwebtoken';
 import { IControlller } from 'controller.interface'
-import userModel from 'users/user.model';
-import CreateUserDto from 'users/createUser.dto';
-import UserWithThatEmailAlreadyExistException from 'execption/UserWithThatEmailAlreadyExistException';
-import User from 'users/user.interface';
+import userModel from '../users/user.model';
+import CreateUserDto from '../users/createUser.dto';
+import UserWithThatEmailAlreadyExistException from '../execption/UserWithThatEmailAlreadyExistException';
+import User from '../users/user.interface';
 import LogInDto from './logIn.dto';
-import WrongCredentialException from 'execption/WrongCredentialException';
-import validationMiddleWare from 'middleware/vallidation.middleware';
+import WrongCredentialException from '../execption/WrongCredentialException';
+import validationMiddleWare from '../middleware/vallidation.middleware';
 import ToeknData from './tokenData';
 import DataStoreInToken from './dataStoredInToken';
 
@@ -22,8 +22,8 @@ class AuthenticationController implements IControlller{
     }
     private initilizeRoute()
     {
-        this.router.post(`${this.path}:/register`,validationMiddleWare(CreateUserDto),this.registeration);
-        this.router.post(`${this.path}:/login`,validationMiddleWare(LogInDto),this.logginIn);
+        this.router.post(`${this.path}/register`,validationMiddleWare(CreateUserDto),this.registeration);
+        this.router.post(`${this.path}/login`,validationMiddleWare(LogInDto),this.logginIn);
         this.router.post(`${this.path}/logout`,this.logOut);
     }
     private registeration= async(req : Request,res: Response,next:NextFunction) =>{
@@ -52,7 +52,7 @@ class AuthenticationController implements IControlller{
 
     private logginIn = async(req : Request,res : Response , next : NextFunction) => {
         const logInData : LogInDto = req.body;
-        const user:User = await this.user.findone({email : logInData.email});
+        const user:User = await this.user.findOne({email : logInData.email});
         if(user){
             const isPasswordMatching = await bcrypt.compare(logInData.password,user.password);
             if(isPasswordMatching){
