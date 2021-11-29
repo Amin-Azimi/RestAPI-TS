@@ -1,7 +1,9 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import mongoose from 'mongoose';
+import { User } from '../users/user.inerface';
+
 export default interface Post  {
-    author?: Types.ObjectId;
     content: string;
     title: string;
+    user :  User | string
   }
   

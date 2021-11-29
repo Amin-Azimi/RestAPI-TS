@@ -1,40 +1,25 @@
-import { Schema, model,Document  } from 'mongoose';
+import * as  mongoose from 'mongoose';
 import Post from './post.interface';
 
-const postSchema=new Schema({
-    author:{
-        ref: 'User',
-        type : 'ObjectId'
+export interface PostDoc extends Post, mongoose.Document {}
+
+type PostModel = mongoose.Model<PostDoc>;
+
+export type PostDocLean = mongoose.LeanDocument<PostDoc>;
+
+const postSchema = new mongoose.Schema(
+  {
+    content: {
+      type: String,
     },
-    content :{type: String},
-    title :{type:String}
-});
-
-// const postModel  = model<Post & Document>('Post',postSchema);
-const postModel = model<Post>('Post',new Schema({
-    author:{
-        ref: 'User',
-        type : 'ObjectId'
+    title: {
+      type: String,
     },
-    content :String,
-    title :String
+    user: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+    },
+  }
+);
 
-}));
-
-export default postModel;
-
-// import * as mongoose from 'mongoose';
-// import Post from './post.interface';
-
-// const postSchema = new mongoose.Schema({
-//   author: {
-//     ref: 'User',
-//     type: mongoose.Schema.Types.ObjectId,
-//   },
-//   content: String,
-//   title: String,
-// });
-
-// const postModel = mongoose.model<Post & mongoose.Document>('Post', postSchema);
-
-// export default postModel;
+export default mongoose.model<PostDoc, PostModel>("Post", postSchema);
