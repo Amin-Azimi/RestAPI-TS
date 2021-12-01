@@ -11,11 +11,13 @@ import validationMiddleware from '../middleware/validation.middleware';
 import CreateUserDto from '../user/user.dto';
 import User from '../user/user.entity';
 import LogInDto from './logIn.dto';
+import AuthenticationService from './authentication.service';
 
 class AuthenticationController implements Controller {
   public path = '/auth';
   public router = express.Router();
   private userRepository = getRepository(User);
+  private authenticationService = new AuthenticationService();
 
   constructor() {
     this.initializeRoutes();
@@ -29,23 +31,12 @@ class AuthenticationController implements Controller {
 
   private registration = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
     const userData: CreateUserDto = request.body;
-    if (
-      await this.userRepository.findOne({ email: userData.email })
-    ) {
-      next(new UserWithThatEmailAlreadyExistsException(userData.email));
-    } else {
-      const hashedPassword = await bcrypt.hash(userData.password, 10);
-      const user = this.userRepository.create({
-        ...userData,
-        password: hashedPassword,
-      });
-      await this.userRepository.save(user);
-      user.password = undefined;
-      const tokenData = this.createToken(user);
-      response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
+    
+    const{cookie,user} = await this.authenticationService.register(userData)
+      response.setHeader('Set-Cookie', [cookie]);
       response.send(user);
     }
-  }
+  
 
   private loggingIn = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
     const logInData: LogInDto = request.body;
